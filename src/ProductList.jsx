@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useDispatch } from 'react-redux'; 
 import './ProductList.css'
 import CartItem from './CartItem';
@@ -7,14 +8,12 @@ function ProductList({ onHomeClick }) {
     const dispatch = useDispatch();
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
-    const [addedToCart, setAddedToCart] = useState({});
+    const cartItems = useSelector(state => state.cart.items);
     const handleAddToCart = (product) => {
         dispatch(addItem(product)); // Dispatch the action to add the product to the cart (Redux action)
-      
-        setAddedToCart((prevState) => ({ // Update the local state to reflect that the product has been added
-          ...prevState, // Spread the previous state to retain existing entries
-          [product.name]: true, // Set the current product's name as a key with value 'true' to mark it as added
-        }));
+      };
+    const isInCart = (plantName) => {
+       return cartItems.some(item => item.name === plantName);
       };
 
     
@@ -307,10 +306,16 @@ function ProductList({ onHomeClick }) {
                   <div className="product-cost">${plant.cost}</div> {/* Display plant cost */}
                     <button
                        className="product-button"
-                       onClick={() => handleAddToCart(plant)} // Handle adding plant to cart
+                    onClick={() => handleAddToCart(plant)}
+                    disabled={isInCart(plant.name)} // Disable if in cart
+                    style={{
+                        opacity: isInCart(plant.name) ? 0.5 : 1,
+                        cursor: isInCart(plant.name) ? 'not-allowed' : 'pointer'
+                      }}
                     >
-                      Add to Cart
+                    {isInCart(plant.name) ? 'In Cart' : 'Add to Cart'}
                     </button>
+
                   </div>
                   ))}
                   </div>
